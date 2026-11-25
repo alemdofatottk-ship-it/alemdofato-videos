@@ -1,0 +1,8 @@
+*.mp4
+*.wav
+*.pcm
+*.f32
+assets/piper/
+dias/**/beats/
+__pycache__/
+*.env
