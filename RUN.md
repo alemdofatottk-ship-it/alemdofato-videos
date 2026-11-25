@@ -34,13 +34,16 @@ set -a; . ~/.af/keys.env; set +a
 ```
 Horários (dia seguinte, Brasília): 12:00, 18:00 e 21:00 → UTC 15:00, 21:00 e 00:00 (do dia depois). Postar primeiro o assunto que envelhece mais rápido.
 
-## 3. Publicar
+## 3. Pedir aprovação (obrigatório)
+O usuário quer aprovar antes de cada agendamento. Envie os 3 vídeos e as 3 capas (SendUserFile) com título, horário e fontes de cada um, e pergunte (AskUserQuestion) quais pode agendar. **Só publique os aprovados.** Se ninguém responder, não agende nada; diga no resumo que os vídeos ficaram prontos esperando aprovação.
+
+## 4. Publicar (só após o "sim")
 ```bash
 python3 lib/pipeline.py publish dias/AAAA-MM-DD/1 dias/AAAA-MM-DD/2 dias/AAAA-MM-DD/3
 ```
 Sobe os MP4 no branch `media` (commit órfão, só os vídeos ainda não publicados) e agenda nos 3 canais via Buffer. Confira em `agendado.json` que os 3 canais voltaram com `post.id`.
 
-## 4. Fechar
+## 5. Fechar
 - Acrescentar os 3 temas em `historico.json`; commit e push no `main` (sem MP4, sem chaves).
 - Mandar ao usuário (SendUserMessage) um resumo curto: os 3 títulos, horários, e as fontes de cada um. Enviar as 3 capas com SendUserFile.
 - Se algo falhar, dizer exatamente o que falhou e o que ficou agendado.
