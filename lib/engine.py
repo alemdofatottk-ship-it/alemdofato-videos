@@ -15,19 +15,23 @@ def dur_of(path):
 
 
 # ------------------------------------------------------------------ timeline
+# abertura curta (lições de 25/11: gancho falado já no 1º segundo)
+PRE, GAP, OUTD = 0.12, 0.08, 0.55
+
+
 def build(spec, d):
     words = json.load(open(os.path.join(d, "words.json")))
     Wd = Words(words)
     tw = json.load(open(os.path.join(d, "titulo_words.json")))
     tdur = dur_of(os.path.join(d, "titulo.wav"))
     voice_dur = dur_of(os.path.join(d, "voz.wav"))
-    D0 = 0.35 + tdur + 0.25 + 0.8
+    D0 = PRE + tdur + GAP + OUTD
     # destaques das linhas do título
     hl, i = [], 0
     for line in spec["title_lines_spoken"]:
         n = len(norm(line))
         seg = tw[i:i + n] or tw[-1:]
-        hl.append((0.35 + seg[0]["s"], 0.35 + seg[-1]["e"]))
+        hl.append((PRE + seg[0]["s"], PRE + seg[-1]["e"]))
         i += n
     bl = []
     prev, last = 0.0, -10.0
@@ -93,7 +97,7 @@ def build(spec, d):
                 if not it.get("_shift"):
                     it["t"] += D0
                     it["_shift"] = True
-    intro = {"type": "intro", "t0": 0.0, "t1": D0, "hl": hl, "tout": 0.35 + tdur + 0.25}
+    intro = {"type": "intro", "t0": 0.0, "t1": D0, "hl": hl, "tout": PRE + tdur + GAP}
     return [intro] + bl, D0, tdur, voice_dur
 
 
@@ -285,7 +289,7 @@ def mix(bl, d, D0, total):
     a = int(D0 * SR)
     voice[a:a + len(v)] += v[: n - a]
     tv = read_wav(os.path.join(d, "titulo.wav"))
-    a = int(0.35 * SR)
+    a = int(PRE * SR)
     voice[a:a + len(tv)] += tv[: n - a] * 0.95
     fx = np.zeros(n, np.float32)
 

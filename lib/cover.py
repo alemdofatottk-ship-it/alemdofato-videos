@@ -5,11 +5,15 @@ from PIL import Image, ImageDraw, ImageFilter
 import numpy as np
 from core import *
 import scenes
+import scenes2
 
 ICON = 260
 
 
 def _icon(name):
+    alt = scenes2.icon_draw(name, ICON)
+    if alt is not None:
+        return alt
     s = 2
     lay = ss_layer(ICON, ICON)
     d = ImageDraw.Draw(lay)
@@ -150,12 +154,12 @@ def cover_frame(info, t=0.0, out=0.0):
         fx = math.sin(t * 2.1 + i) * 8
         fy = math.cos(t * 1.7 + i * 1.3) * 8
         if out > 0:
-            k = ease_in(clamp(out / 0.75))
+            k = ease_in(clamp(out / 0.5))
             dx, dy = x - W / 2, y - H / 2
             x, y = x + dx * 1.6 * k, y + dy * 1.6 * k
             rot += 220 * k * (1 if i % 2 else -1)
         paste_center(img, im, x + fx, y + fy, scale=sc, rot=rot)
-    fa = 1 - clamp(out / 0.45)
+    fa = 1 - clamp(out / 0.35)
     if fa > 0:
         lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         d = ImageDraw.Draw(lay)

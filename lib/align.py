@@ -31,9 +31,28 @@ def norm(t):
     return re.findall(r"[a-z0-9]+", t)
 
 
+def _spell(txt):
+    """Algarismos da transcrição viram palavras (o roteiro usa números por extenso)."""
+    try:
+        from num2words import num2words
+    except ImportError:
+        return txt
+
+    def rep(m):
+        x = m.group(0).replace(".", "")
+        try:
+            if "," in x:
+                a, b = x.split(",", 1)
+                return num2words(int(a), lang="pt_BR") + " virgula " + num2words(int(b), lang="pt_BR")
+            return num2words(int(x), lang="pt_BR")
+        except Exception:
+            return m.group(0)
+    return re.sub(r"\d[\d.]*(,\d+)?", rep, txt)
+
+
 def similarity(script, words):
     a = norm(script)
-    b = norm(" ".join(w["w"] for w in words))
+    b = norm(_spell(" ".join(w["w"] for w in words)))
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 

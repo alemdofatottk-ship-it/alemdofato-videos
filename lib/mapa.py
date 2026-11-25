@@ -10,7 +10,7 @@ LAT0 = 0.0
 
 @lru_cache(None)
 def _load(kind):
-    r = shapefile.Reader(os.path.join(A, "ne", kind), encoding="latin1")
+    r = shapefile.Reader(os.path.join(A, "ne", kind), encoding="utf-8")
     flds = [f[0] for f in r.fields[1:]]
     out = []
     for sr in r.iterShapeRecords():

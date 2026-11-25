@@ -126,15 +126,19 @@ def folder(title):
     d = ImageDraw.Draw(img)
     x0, y0, x1, y1 = 90, 320, 990, 1410
     d.rounded_rectangle([x0 + 14, y0 + 18, x1 + 14, y1 + 18], 18, fill=(0, 0, 0, 120))
-    d.rounded_rectangle([x0, y0 - 60, x0 + 380, y0 + 30], 18, fill=(196, 168, 116))
+    fs = 64
+    while fs > 40 and text_size(title, font("anton", fs))[0] > 450:
+        fs -= 2
+    tabw = max(380, text_size(title, font("anton", fs))[0] + 70)
+    d.rounded_rectangle([x0, y0 - 60, x0 + tabw, y0 + 30], 18, fill=(196, 168, 116))
     d.rounded_rectangle([x0, y0, x1, y1], 18, fill=MANILA)
     d.rectangle([x0 + 30, y0 + 40, x1 - 30, y1 - 30], fill=(240, 236, 224))
     for y in range(y0 + 120, y1 - 40, 46):
         d.line([x0 + 50, y, x1 - 50, y], fill=(200, 210, 226), width=2)
     d.line([x0 + 120, y0 + 40, x0 + 120, y1 - 30], fill=(230, 150, 150), width=3)
-    d.text((x0 + 30, y0 - 16), title, font=font("anton", 64), fill=INK, anchor="lm")
-    st = scenes.stamp("CONFIDENCIAL", 54)
-    paste_center(img, st, x1 - 220, y0 - 10, rot=6)
+    d.text((x0 + 30, y0 - 16), title, font=font("anton", fs), fill=INK, anchor="lm")
+    st = scenes.stamp("CONFIDENCIAL", 50)
+    paste_center(img, st, x1 - 175, y0 - 10, rot=6)
     img.alpha_composite(vignette_layer(0.45))
     return img
 

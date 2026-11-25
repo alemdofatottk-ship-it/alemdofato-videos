@@ -20,8 +20,9 @@ cd /home/claude/alemdofato-videos && ./setup.sh
 - `roteiro.txt`: 180–200 palavras, frases curtas, números por extenso, gancho forte, pergunta de comentário com opções e "o próximo caso vai ser postado aqui no perfil", e termina com "Siga o Além do Fato." (um único "siga").
 - `titulo.txt`: título falado pela voz grátis (escrita fonética se preciso).
 - `python3 lib/pipeline.py voice DIR` (Gemini flash TTS; se der 429 em todos os modelos, use os vídeos que deram certo e avise no resumo).
+- `python3 lib/voicefix.py DIR`: recorta o título na 1ª pausa (robusto a algarismos), encurta pausas longas (> 0,45 s) e refaz words.json. Confira a similaridade (>= 0,9) e a duração total (45–55 s).
 - `spec.py`: copie o formato de `exemplos/faa/spec.py`. Batidas de 1,5 a 4 s, maioria animação (`sp`, `map`, `dos`, `type`), `txt` só para gancho e frases de impacto, sem repetir o mesmo tipo mais de 2 vezes seguidas, `poll` na pergunta e `follow` no "Siga".
-  - Cenas prontas em `lib/scenes.py`: clock, grounded, network, cables, board, chart, court, newspaper, money. Se o tema pedir, crie uma cena nova no mesmo estilo (noir, sem sol vermelho, sem pessoas reais, sem personagens protegidos) e faça commit.
+  - Cenas prontas em `lib/scenes.py`: clock, grounded, network, cables, board, chart, court, newspaper, money, store, sacado. Em `lib/scenes2.py`: phone (pix_burst, shop, qr, confirm, suspended), spread, board_inv, exchange, vote_panel, tariff, flags, embassy, imports. Se o tema pedir, crie uma cena nova no mesmo estilo (noir, sem sol vermelho, sem pessoas reais, sem personagens protegidos) e faça commit.
   - Personagens (`person`) em quase toda cena `sp`, do lado direito.
   - Mapa (`map`) sempre que citar um lugar.
 - `python3 lib/pipeline.py render DIR` e abrir `folha.jpg` para conferir (nada cortado, nada sobreposto, nenhuma tela parada).
