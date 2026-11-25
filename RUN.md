@@ -1,4 +1,4 @@
-# Rotina diária: 3 curtos do Além do Fato (dossiê 9:16) agendados no Buffer
+# Rotina: 2 curtos por dia do Além do Fato (dossiê 9:16) agendados no Buffer
 
 Siga a skill **video-dossie-alem-do-fato** para todas as regras de conteúdo, checagem e estilo. Este arquivo descreve só a parte automática. Trabalhe sem pedir autorização no meio do caminho e gaste poucos tokens.
 
@@ -32,7 +32,7 @@ cd /home/claude/alemdofato-videos && ./setup.sh
  "tags_yt": ["#alemdofato", "#shorts", "... total 10"],
  "due_at": "AAAA-MM-DDTHH:MM:00Z"}
 ```
-Horários (dia seguinte, Brasília): 12:00, 18:00 e 21:00 → UTC 15:00, 21:00 e 00:00 (do dia depois). Postar primeiro o assunto que envelhece mais rápido.
+Horários (Brasília): 2 vídeos por dia, 12:00 e 18:00 → UTC 15:00 e 21:00. Minissérie: uma parte por dia às 12:00. Postar primeiro o assunto que envelhece mais rápido.
 
 ## 3. Pedir aprovação (obrigatório)
 O usuário quer aprovar antes de cada agendamento. Envie os 3 vídeos e as 3 capas (SendUserFile) com título, horário e fontes de cada um, e pergunte (AskUserQuestion) quais pode agendar. **Só publique os aprovados.** Se ninguém responder, não agende nada; diga no resumo que os vídeos ficaram prontos esperando aprovação.
