@@ -84,9 +84,16 @@ def publish(dirs):
     import post
     now = dt.datetime.now(dt.timezone.utc)
     git = ["git", "-C", REPO]
-    subprocess.run(git + ["fetch", "--depth", "1", "origin", "media"], capture_output=True)
+    remote = subprocess.run(git + ["ls-remote", "origin", "refs/heads/media"], capture_output=True, text=True)
+    if remote.returncode != 0:
+        raise SystemExit("não consegui ler o branch media; não publico para não apagar vídeos agendados")
     keep = {}
-    has = subprocess.run(git + ["rev-parse", "--verify", "origin/media"], capture_output=True).returncode == 0
+    has = bool(remote.stdout.strip())
+    if has:  # refspec explícito: num clone raso de um branch só, "fetch origin media" não cria origin/media
+        r = subprocess.run(git + ["fetch", "--depth", "1", "origin", "+refs/heads/media:refs/remotes/origin/media"],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            raise SystemExit("falha ao baixar o branch media; não publico para não apagar vídeos agendados:\n" + r.stderr)
     tmp = "/tmp/af_media"
     shutil.rmtree(tmp, ignore_errors=True)
     os.makedirs(tmp)
