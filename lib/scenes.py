@@ -430,3 +430,92 @@ def money(t, dur, label="", out=True):
 
 
 SCENES.update({"chart": chart, "court": court, "newspaper": newspaper, "money": money})
+
+
+# ---------------- loja de varejo à noite (letreiro apagando) ----------------
+def store(t, dur, sign="LOJA", off_at=None):
+    img = base_night()
+    lay = ss_layer(W, H)
+    d = ImageDraw.Draw(lay)
+    s = 2
+    d.rectangle([0, 1250 * s, W * s, H * s], fill=(24, 26, 32))
+    d.rectangle([60 * s, 420 * s, 1020 * s, 1250 * s], fill=(58, 62, 74))
+    on = off_at is None or t < off_at or (t - off_at < 0.5 and int((t - off_at) * 14) % 2 == 0)
+    sc = (235, 60, 60) if on else (70, 40, 44)
+    d.rounded_rectangle([140 * s, 470 * s, 940 * s, 640 * s], 18 * s, fill=(20, 22, 28))
+    d.text((540 * s, 555 * s), sign, font=font("anton", 120 * s), fill=sc, anchor="mm")
+    for i in range(8):
+        x0 = 60 + i * 120
+        d.polygon([(x0 * s, 680 * s), ((x0 + 120) * s, 680 * s), ((x0 + 120) * s, 760 * s), ((x0 + 60) * s, 790 * s),
+                   (x0 * s, 760 * s)], fill=RED if i % 2 == 0 else (230, 228, 220))
+    win = (250, 214, 140) if on else (34, 38, 48)
+    for x0 in (110, 600):
+        d.rectangle([x0 * s, 830 * s, (x0 + 370) * s, 1180 * s], fill=win, outline=(30, 32, 40), width=10 * s)
+        if on:
+            for k in range(3):
+                d.rectangle([(x0 + 40 + k * 110) * s, 1060 * s, (x0 + 120 + k * 110) * s, 1180 * s],
+                            fill=(180, 60, 50) if k % 2 else (70, 110, 160))
+    d.rectangle([470 * s, 900 * s, 610 * s, 1250 * s], fill=(30, 32, 40))
+    img.alpha_composite(down(lay))
+    if on:
+        glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(glow).rounded_rectangle([140, 470, 940, 640], 18, fill=(235, 60, 60, 90))
+        img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(40)))
+    return img
+
+
+# ---------------- risco sacado: loja, fornecedor e banco ----------------
+def _node(d, cx, cy, title, col, s=2):
+    d.rounded_rectangle([(cx - 190) * s, (cy - 85) * s, (cx + 190) * s, (cy + 85) * s], 22 * s, fill=col,
+                        outline=(240, 240, 236), width=6 * s)
+    d.text((cx * s, cy * s), title, font=font("anton", 66 * s), fill=WHITE, anchor="mm")
+
+
+def _flow(d, a, b, k, col, label, s=2, lp=0.5, lab=None):
+    if k <= 0:
+        return
+    (ax, ay), (bx, by) = a, b
+    ex, ey = lerp(ax, bx, k), lerp(ay, by, k)
+    d.line([ax * s, ay * s, ex * s, ey * s], fill=col, width=14 * s)
+    ang = math.atan2(ey - ay, ex - ax)
+    tip = [(ex * s + math.cos(ang) * 34 * s, ey * s + math.sin(ang) * 34 * s),
+           (ex * s + math.cos(ang + 2.4) * 34 * s, ey * s + math.sin(ang + 2.4) * 34 * s),
+           (ex * s + math.cos(ang - 2.4) * 34 * s, ey * s + math.sin(ang - 2.4) * 34 * s)]
+    d.polygon(tip, fill=col)
+    if k > 0.6 and label and lab is not None:
+        mx, my = lerp(ax, bx, lp), lerp(ay, by, lp)
+        f = font("oswald", 40 * s, 700)
+        tw = text_size(label, f)[0]
+        d.rounded_rectangle([mx * s - tw / 2 - 18 * s, (my - 34) * s, mx * s + tw / 2 + 18 * s, (my + 34) * s], 14 * s,
+                            fill=(14, 14, 18))
+        d.text((mx * s, my * s), label, font=f, fill=col, anchor="mm")
+    if lab is None and label:
+        return (a, b, k, col, label, lp)
+
+
+def sacado(t, dur, steps=(0.2, 1.4, 2.8, 4.2)):
+    img = base_night()
+    lay = ss_layer(W, H)
+    d = ImageDraw.Draw(lay)
+    F, L, B = (380, 420), (380, 790), (380, 1160)
+    k = [clamp((t - st) / 0.7) for st in steps]
+    labs = [_flow(d, (F[0] + 60, F[1] + 90), (L[0] + 60, L[1] - 95), ease_out(k[0]), (235, 235, 230), "MERCADORIA"),
+            _flow(d, (150, B[1]), (150, F[1]), ease_out(k[1]), (90, 200, 120), "BANCO PAGA", lp=0.75),
+            _flow(d, (L[0] + 150, L[1] + 90), (B[0] + 150, B[1] - 95), ease_out(k[2]), AMBER, "+ JUROS")]
+    d.line([(150 * 2, B[1] * 2), ((B[0] - 190) * 2, B[1] * 2)], fill=(90, 200, 120), width=28) if k[1] > 0 else None
+    d.line([(150 * 2, F[1] * 2), ((F[0] - 190) * 2, F[1] * 2)], fill=(90, 200, 120), width=28) if k[1] > 0.95 else None
+    _node(d, *F, "FORNECEDOR", (60, 66, 82))
+    _node(d, *L, "LOJA", RED)
+    _node(d, *B, "BANCO", (40, 90, 70))
+    for x in labs:
+        if x:
+            a, b, kk, col, label, lp = x
+            _flow(d, a, b, 0.0001 if False else kk, col, label, lp=lp, lab=True) if kk > 0.6 else None
+    img.alpha_composite(down(lay))
+    if k[3] > 0:
+        st = stamp("DÍVIDA ESCONDIDA", size=72)
+        paste_center(img, st, 380, 1390, scale=lerp(1.8, 0.9, back_out(k[3])), rot=-6, alpha=clamp(k[3] * 3))
+    return img
+
+
+SCENES.update({"store": store, "sacado": sacado})

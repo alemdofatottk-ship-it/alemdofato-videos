@@ -54,6 +54,31 @@ def _icon(name):
         for i in range(5):
             d.line([30 * U, (80 + i * 22) * U, 230 * U, (120 + i * 22) * U], fill=(200, 110, 50) if i % 2 else (230, 150, 80),
                    width=14 * U)
+    elif name == "sacola":
+        d.polygon([(50 * U, 95 * U), (210 * U, 95 * U), (228 * U, 235 * U), (32 * U, 235 * U)], fill=RED)
+        d.arc([88 * U, 40 * U, 172 * U, 135 * U], 180, 360, fill=INK, width=12 * U)
+        d.text((c, 170 * U), "$", font=font("anton", 90 * U), fill=WHITE, anchor="mm")
+    elif name == "cifrao":
+        d.ellipse([25 * U, 25 * U, 235 * U, 235 * U], fill=AMBER, outline=INK, width=10 * U)
+        d.text((c, c + 6 * U), "R$", font=font("anton", 100 * U), fill=INK, anchor="mm")
+    elif name == "queda":
+        d.rounded_rectangle([20 * U, 30 * U, 240 * U, 230 * U], 16 * U, fill=(20, 22, 28))
+        pts = [(40, 70), (90, 95), (120, 85), (160, 160), (200, 150), (225, 205)]
+        d.line([(x * U, y * U) for x, y in pts], fill=RED, width=12 * U, joint="curve")
+        d.polygon([(225 * U, 222 * U), (200 * U, 195 * U), (236 * U, 188 * U)], fill=RED)
+    elif name == "balanco":
+        d.rectangle([45 * U, 20 * U, 215 * U, 240 * U], fill=PAPER, outline=INK, width=6 * U)
+        for i in range(7):
+            d.line([65 * U, (55 + i * 24) * U, (195 if i % 3 else 150) * U, (55 + i * 24) * U], fill=(120, 120, 120), width=6 * U)
+        d.text((c, 200 * U), "?", font=font("anton", 70 * U), fill=RED, anchor="mm")
+    elif name == "martelo":
+        d.line([70 * U, 200 * U, 170 * U, 100 * U], fill=(110, 70, 40), width=22 * U)
+        d.rounded_rectangle([130 * U, 40 * U, 230 * U, 110 * U], 12 * U, fill=(140, 90, 50))
+        d.rectangle([30 * U, 215 * U, 150 * U, 240 * U], fill=(90, 60, 35))
+    elif name == "acao":
+        d.rounded_rectangle([15 * U, 60 * U, 245 * U, 200 * U], 16 * U, fill=(14, 14, 18))
+        d.text((c, 105 * U), "AMER3", font=font("anton", 54 * U), fill=WHITE, anchor="mm")
+        d.text((c, 160 * U), "-77%", font=font("anton", 54 * U), fill=(255, 70, 70), anchor="mm")
     return down(lay)
 
 

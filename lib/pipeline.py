@@ -1,5 +1,5 @@
 """Comandos mecânicos da rotina diária.
-  python3 lib/pipeline.py voice  DIR      -> voz.wav (Gemini Charon) + words.json + titulo.wav (Piper) + titulo_words.json
+  python3 lib/pipeline.py voice  DIR      -> voz.wav (Gemini Charon) + words.json + titulo.wav (mesma voz Gemini) + titulo_words.json
   python3 lib/pipeline.py render DIR      -> DIR/<out>.mp4, DIR/capa.jpg, DIR/folha.jpg
   python3 lib/pipeline.py publish DIR...  -> sobe os MP4 no branch media e agenda no Buffer (DIR/meta.json)
 """
@@ -18,31 +18,45 @@ def sh(*a, **k):
 
 
 def voice(d):
+    """Um único pedido ao Gemini (Charon) com título + roteiro; o trecho do título vira titulo.wav."""
     import align, tts
-    script = open(os.path.join(d, "roteiro.txt")).read()
+    script = open(os.path.join(d, "roteiro.txt")).read().strip()
+    title = open(os.path.join(d, "titulo.txt")).read().strip()
+    full = title + "\n\n" + script
+    allwav = os.path.join(d, "voz_full.wav")
     model = os.environ.get("AF_TTS_MODEL")
+    reuse = os.environ.get("AF_REUSE") and os.path.exists(allwav)  # voz já conferida à mão (números viram algarismos)
     for attempt in range(2):
-        m = tts.tts(script, os.path.join(d, "voz.wav"), model)
+        m = "reuso" if reuse else tts.tts(full, allwav, model)
         model = m  # mesma voz/modelo em todas as tentativas e em todo o lote
-        words = align.transcribe(os.path.join(d, "voz.wav"))
-        sim = align.similarity(script, words)
+        words = align.transcribe(allwav)
+        sim = align.similarity(full, words)
         print(f"modelo {m}  similaridade {sim:.3f}")
-        if sim >= 0.9:
+        if sim >= (0.85 if reuse else 0.9):
             break
     else:
         raise SystemExit("TTS reprovado duas vezes (similaridade < 0,9)")
-    json.dump(words, open(os.path.join(d, "words.json"), "w"), ensure_ascii=False)
-    title = open(os.path.join(d, "titulo.txt")).read().strip()
-    raw = os.path.join(d, "titulo_raw.wav")
-    subprocess.run([sys.executable, "-m", "piper", "-m", PIPER, "--length-scale", "1.1", "-f", raw], input=title.encode(),
-                   check=True, capture_output=True)
-    sh("ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af",
-       "rubberband=pitch=0.93,equalizer=f=120:t=q:w=1:g=4,acompressor=threshold=-18dB:ratio=3,"
-       "aecho=0.8:0.5:40:0.18,loudnorm=I=-15:TP=-1.5", "-ar", "48000", os.path.join(d, "titulo.wav"))
-    tw = align.transcribe(os.path.join(d, "titulo.wav"))
+    # fim do título: casa as palavras normalizadas do título com o começo da transcrição
+    import difflib
+    tn = align.norm(title)
+    wn = [" ".join(align.norm(w["w"])) for w in words]
+    flat, owner = [], []
+    for k, w in enumerate(wn):
+        for x in w.split():
+            flat.append(x); owner.append(k)
+    sm = difflib.SequenceMatcher(None, tn, flat[:len(tn) + 8], autojunk=False)
+    last = max(b.b + b.size - 1 for b in sm.get_matching_blocks() if b.size) if any(b.size for b in sm.get_matching_blocks()) else len(tn) - 1
+    k = owner[min(last, len(owner) - 1)]
+    cut = (words[k]["e"] + words[k + 1]["s"]) / 2
+    sh("ffmpeg", "-y", "-loglevel", "error", "-i", allwav, "-t", f"{cut:.3f}", "-af", "afade=t=out:st=%.3f:d=0.05" % max(0, cut - 0.05),
+       os.path.join(d, "titulo.wav"))
+    sh("ffmpeg", "-y", "-loglevel", "error", "-ss", f"{cut:.3f}", "-i", allwav, os.path.join(d, "voz.wav"))
+    tw = [w for w in words[:k + 1]]
+    vw = [dict(w, s=round(w["s"] - cut, 3), e=round(w["e"] - cut, 3)) for w in words[k + 1:]]
+    json.dump(vw, open(os.path.join(d, "words.json"), "w"), ensure_ascii=False)
     json.dump(tw, open(os.path.join(d, "titulo_words.json"), "w"), ensure_ascii=False)
     print("título falado:", " ".join(w["w"] for w in tw))
-    print("voz:", " ".join(w["w"] for w in words))
+    print("voz:", " ".join(w["w"] for w in vw))
 
 
 def load_spec(d):
