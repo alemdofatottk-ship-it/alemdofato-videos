@@ -6,8 +6,8 @@ Siga a skill **video-dossie-alem-do-fato** para todas as regras de conteúdo, ch
 ```bash
 git clone --depth 1 https://github.com/alemdofatottk-ship-it/alemdofato-videos /home/claude/alemdofato-videos
 cd /home/claude/alemdofato-videos && ./setup.sh
-mkdir -p ~/.af && chmod 700 ~/.af   # grave BUFFER_KEY e GEMINI_KEY (vindos do prompt da tarefa) em ~/.af/keys.env
-set -a; . ~/.af/keys.env; set +a
+# As chaves do Buffer e do Gemini são "segredos de rede" do ambiente: o proxy as injeta
+# nas chamadas para api.buffer.com e generativelanguage.googleapis.com. Nunca peça nem grave chaves.
 ```
 
 ## 1. Escolher 3 temas

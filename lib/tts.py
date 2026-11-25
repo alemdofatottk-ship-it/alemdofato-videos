@@ -7,7 +7,7 @@ STYLE = ("Narre em português do Brasil, como um narrador de documentário inves
 
 
 def tts(text, out_wav, model=None):
-    key = os.environ["GEMINI_KEY"]
+    key = os.environ.get("GEMINI_KEY")  # sem chave: o proxy injeta o segredo de rede
     models = [model] if model else MODELS
     last = None
     for m in models:
@@ -16,7 +16,8 @@ def tts(text, out_wav, model=None):
                                      "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": "Charon"}}}}}
         req = urllib.request.Request(
             f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
-            data=json.dumps(body).encode(), headers={"x-goog-api-key": key, "Content-Type": "application/json"})
+            data=json.dumps(body).encode(),
+            headers=dict({"Content-Type": "application/json"}, **({"x-goog-api-key": key} if key else {})))
         try:
             d = json.load(urllib.request.urlopen(req, timeout=600))
         except urllib.error.HTTPError as e:

@@ -7,8 +7,9 @@ API = "https://api.buffer.com"
 
 def gql(query, variables=None):
     req = urllib.request.Request(API, data=json.dumps({"query": query, "variables": variables or {}}).encode(),
-                                 headers={"Authorization": "Bearer " + os.environ["BUFFER_KEY"],
-                                          "Content-Type": "application/json"})
+                                 headers=dict({"Content-Type": "application/json"},
+                                              **({"Authorization": "Bearer " + os.environ["BUFFER_KEY"]}
+                                                 if os.environ.get("BUFFER_KEY") else {})))
     return json.load(urllib.request.urlopen(req, timeout=120))
 
 
