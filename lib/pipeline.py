@@ -90,16 +90,17 @@ def publish(dirs):
     metas = []
     for d in dirs:
         meta = json.load(open(os.path.join(d, "meta.json")))
-        spec = load_spec(d)
+        fname = meta.get("file") or load_spec(d)["out"]
         due = dt.datetime.fromisoformat(meta["due_at"].replace("Z", "+00:00"))
-        name = due.strftime("%Y%m%d-%H%M") + "_" + spec["out"]
-        shutil.copy(os.path.join(d, spec["out"]), os.path.join(tmp, name))
+        name = due.strftime("%Y%m%d-%H%M") + "_" + os.path.basename(fname)
+        shutil.copy(os.path.join(d, fname), os.path.join(tmp, name))
         meta["url"] = f"https://raw.githubusercontent.com/{SLUG}/media/{name}"
         metas.append((d, meta))
     # commit órfão novo no branch media (histórico não acumula vídeos velhos)
     wt = "/tmp/af_wt"
     shutil.rmtree(wt, ignore_errors=True)
     sh(*(git + ["worktree", "prune"]))
+    subprocess.run(git + ["branch", "-D", "media_new"], capture_output=True)
     sh(*(git + ["worktree", "add", "--orphan", "-B", "media_new", wt]))
     for f in os.listdir(tmp):
         shutil.copy(os.path.join(tmp, f), wt)

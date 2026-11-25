@@ -161,5 +161,11 @@ def cover_frame(info, t=0.0, out=0.0):
                     jump = -18 * math.sin(math.pi * clamp((t - a0) / 0.25))
             d.text((W / 2 + 5, y + 8 + jump), l, font=f, fill=(0, 0, 0, int(170 * fa)), anchor="mm")
             d.text((W / 2, y + jump), l, font=f, fill=col + (int(255 * fa),), anchor="mm")
+        # logo do canal logo abaixo do título
+        lg = logo(120).copy()
+        if fa < 1:
+            lg.putalpha(lg.split()[3].point(lambda v: int(v * fa)))
+        ly = top + (len(lines) - 1) * lh + lh / 2 + 90
+        lay.alpha_composite(lg, (int(W / 2 - 60), int(ly - 60)))
         img.alpha_composite(lay)
     return img
