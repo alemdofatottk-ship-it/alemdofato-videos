@@ -586,3 +586,82 @@ def icon_draw(name, ICON=260):
     else:
         return None
     return down(lay)
+
+
+# ---------------------------------------------------------------- fotos e logos reais (Wikimedia Commons)
+import os
+IMG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "img")
+CREDITS = {
+    "banpara_agencia.jpg": "Foto: Benivaldo Pereira / CC BY 3.0",
+    "congresso.jpg": "Foto: Rodolfo Stuckert / CC BY 3.0",
+    "itamaraty.jpg": "Foto: Dlaurini / CC BY-SA 4.0",
+    "casa_rosada.jpg": "Foto: Diego Delso / CC BY-SA 3.0",
+    "e195e2.jpg": "Foto: Andrew Heneen / CC BY 4.0",
+}
+_cache = {}
+
+
+def load_img(name):
+    if name not in _cache:
+        _cache[name] = Image.open(os.path.join(IMG_DIR, name)).convert("RGBA")
+    return _cache[name]
+
+
+def _cover(im, w, h, zoom=1.0, fx=0.5, fy=0.5):
+    sc = max(w / im.width, h / im.height) * zoom
+    nw, nh = int(im.width * sc), int(im.height * sc)
+    r = im.resize((nw, nh), Image.LANCZOS)
+    x = int((nw - w) * fx)
+    y = int((nh - h) * fy)
+    return r.crop((x, y, x + w, y + h))
+
+
+def photo(t, dur, name="congresso.jpg", label=None, fx=0.5, fy=0.5, tint=0.18):
+    from PIL import ImageEnhance
+    img = base_night()
+    pw, ph = 1000, 690
+    z = 1.0 + 0.08 * clamp(t / max(1.0, dur))
+    p = _cover(load_img(name), pw, ph, z, fx, fy).convert("RGB")
+    p = ImageEnhance.Color(p).enhance(0.75)
+    p = Image.blend(p, Image.new("RGB", p.size, (12, 14, 22)), tint).convert("RGBA")
+    k = ease_out(clamp(t / 0.4))
+    fr = Image.new("RGBA", (pw + 28, ph + 28), (236, 236, 232, 255))
+    fr.alpha_composite(p, (14, 14))
+    d = ImageDraw.Draw(fr)
+    cr = CREDITS.get(name, "")
+    if cr:
+        f = font("oswald", 24, 500)
+        tw = text_size(cr, f)[0]
+        d.rounded_rectangle([pw - tw - 6, ph - 20, pw + 18, ph + 12], 6, fill=(0, 0, 0, 170))
+        d.text((pw + 8, ph - 4), cr, font=f, fill=(230, 230, 230), anchor="rm")
+    paste_center(img, fr, 540, 690 + (1 - k) * 60, rot=-1.2, alpha=k)
+    if label:
+        kk = clamp((t - 0.35) / 0.35)
+        paste_center(img, stamp(label, 64), 470, 1120, scale=lerp(1.5, 1.0, back_out(kk)), rot=-4, alpha=clamp(kk * 3))
+    return img
+
+
+scenes.SCENES["photo"] = photo
+
+
+def logo_badge(name, size=260, dark=False):
+    """Logo real sobre um selo arredondado (para a capa)."""
+    lg = load_img(name)
+    bg = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(bg)
+    d.rounded_rectangle([6, size * 0.22, size - 6, size * 0.78], 28, fill=(20, 22, 28) if dark else (250, 250, 248),
+                        outline=(255, 255, 255), width=6)
+    l = lg.copy()
+    l.thumbnail((int(size * 0.8), int(size * 0.44)), Image.LANCZOS)
+    bg.alpha_composite(l, ((size - l.width) // 2, (size - l.height) // 2))
+    return bg
+
+
+_old_icon = icon_draw
+
+
+def icon_draw(name, ICON=260):
+    if name.startswith("logo_"):
+        key = name[5:]
+        return logo_badge(key + ".png", ICON, dark=(key == "pix"))
+    return _old_icon(name, ICON)

@@ -84,7 +84,7 @@ def build(spec, d):
                     slot = 0
                 kind, args = it["card"][0], it["card"][1:]
                 img = {"fact": beats.card_fact, "num": beats.card_num, "doc": beats.card_doc,
-                       "stamp": beats.card_stamp}[kind](*args)
+                       "stamp": beats.card_stamp, "logo": beats.card_logo, "photo": beats.card_photo}[kind](*args)
                 items.append({"t": ti, "img": img, "slot": slot, "rot": random.Random(ti).choice([-2, 2])})
                 slot += 1
             b["_items"] = items

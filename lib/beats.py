@@ -111,6 +111,37 @@ def card_doc(title, lines_n=7, stamp_txt=None, w=840):
     return im
 
 
+def card_logo(name, caption, w=840, dark=None):
+    import scenes2
+    lg = scenes2.load_img(name)
+    if dark is None:
+        dark = name.startswith("pix")
+    f2 = font("oswald", 50, 700)
+    h = 360
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 0, w, h], fill=(20, 22, 28) if dark else (250, 250, 248))
+    d.rectangle([0, 0, 18, h], fill=RED)
+    l = lg.copy()
+    l.thumbnail((w - 160, 190), Image.LANCZOS)
+    im.alpha_composite(l, ((w - l.width) // 2 + 9, 40 + (190 - l.height) // 2))
+    d.text((w / 2 + 9, 300), caption.upper(), font=f2, fill=WHITE if dark else INK, anchor="mm")
+    return im
+
+
+def card_photo(name, caption, w=840):
+    import scenes2
+    ph = 470
+    im = Image.new("RGBA", (w, ph + 110), (240, 238, 230, 255))
+    p = scenes2._cover(scenes2.load_img(name), w - 40, ph - 20)
+    im.alpha_composite(p, (20, 20))
+    d = ImageDraw.Draw(im)
+    d.text((30, ph + 45), caption.upper(), font=font("anton", 54), fill=INK, anchor="lm")
+    cr = scenes2.CREDITS.get(name, "")
+    d.text((w - 30, ph + 45), cr, font=font("oswald", 24, 500), fill=(90, 90, 96), anchor="rm")
+    return im
+
+
 def card_stamp(text, sub=None):
     return scenes.stamp(text, 110, sub=sub)
 

@@ -4,7 +4,7 @@ SPEC = {
     "cover_tag": "CASO GOLPE PIX · BLACK FRIDAY",
     "title_lines": ["SEU PIX VAI", "PRO GOLPISTA?"],
     "title_lines_spoken": ["Seu Pix vai", "pro golpista?"],
-    "icons": ["carrinho", "desconto", "pix", "qrcode", "celular", "alerta", "sacola", "cadeado"],
+    "icons": ["carrinho", "desconto", "logo_pix", "qrcode", "celular", "alerta", "logo_febraban", "cadeado"],
     "cover_bg": ("phone", {"mode": "shop", "stamp_at": 99}, 2.0),
     "beats": [
         {"type": "txt", "trigger": "Nesta sexta", "text": "NESTA SEXTA, 27, É BLACK FRIDAY.", "hl": ["BLACK", "FRIDAY."]},
@@ -17,7 +17,7 @@ SPEC = {
          "opts": {"trend": "up", "label": "TENTATIVAS DE FRAUDE", "value": "4 DIAS"},
          "person": {"pose": "panic", "expr": "scared", "x": 900, "suit": 2, "hair": 3, "skin": 0, "balloon": "!", "bt": 0.6}},
         {"type": "dos", "trigger": "Numa pesquisa", "fresh": True, "cap": "Os golpes mais temidos em 2026",
-         "items": [{"at": "Numa pesquisa", "card": ("fact", "SERASA", "pesquisa: golpes mais temidos em 2026")},
+         "items": [{"at": "Numa pesquisa", "card": ("logo", "serasa.png", "Pesquisa 2026")},
                    {"at": "site falso", "card": ("fact", "1º SITE FALSO", "citado por 53% dos entrevistados")}]},
         {"type": "txt", "trigger": "O segundo", "text": "O SEGUNDO? GOLPE COM PIX.", "hl": ["PIX."]},
         {"type": "sp", "trigger": "Preço bom demais", "scene": "phone", "cap": "Preço bom demais e só no Pix",
